@@ -211,30 +211,20 @@ impl ProjectorPatternPainter {
 
             let (vertex_shader_source, fragment_shader_source) = (
                 r#"
-                    const vec2 verts[3] = vec2[3](
-                        vec2(0.0, 1.0),
-                        vec2(-1.0, -1.0),
-                        vec2(1.0, -1.0)
-                    );
-                    const vec4 colors[3] = vec4[3](
-                        vec4(1.0, 0.0, 0.0, 1.0),
-                        vec4(0.0, 1.0, 0.0, 1.0),
-                        vec4(0.0, 0.0, 1.0, 1.0)
-                    );
-                    out vec4 v_color;
-                    uniform float u_angle;
+                    // https://www.saschawillems.de/blog/2016/08/13/vulkan-tutorial-on-rendering-a-fullscreen-quad-without-buffers/
+                    out vec2 uv;
+                    
                     void main() {
-                        v_color = colors[gl_VertexID];
-                        gl_Position = vec4(verts[gl_VertexID], 0.0, 1.0);
-                        gl_Position.x *= cos(u_angle);
+                        uv = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
+                        gl_Position = vec4(uv * 2.0f + -1.0f, 0.0f, 1.0f);
                     }
                 "#,
                 r#"
                     precision mediump float;
-                    in vec4 v_color;
+                    in vec2 uv;
                     out vec4 out_color;
                     void main() {
-                        out_color = v_color;
+                        out_color = vec4(uv, 0, 1);
                     }
                 "#,
             );
@@ -301,10 +291,6 @@ impl ProjectorPatternPainter {
             gl.viewport(0, 0, size.x as _, size.y as _);
 
             gl.use_program(Some(self.program));
-            gl.uniform_1_f32(
-                gl.get_uniform_location(self.program, "u_angle").as_ref(),
-                0.,
-            );
             gl.bind_vertex_array(Some(self.vertex_array));
             gl.draw_arrays(glow::TRIANGLES, 0, 3);
         }
