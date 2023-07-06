@@ -10,6 +10,7 @@ enum Tabs {
 struct AppConfig {
     calib: CalibratorConfig,
     record: RecorderConfig,
+    tab: Tabs,
 }
 
 struct CalibratorConfig {}
@@ -24,33 +25,32 @@ struct RecorderConfig {
 }
 
 fn main() -> eframe::Result<()> {
-    let mut tab = Tabs::Record;
     let mut cfg = AppConfig::default();
 
     let options = eframe::NativeOptions::default();
-    eframe::run_simple_native("My egui App", options, move |ctx, frame| {
+    eframe::run_simple_native("Deproject calibrator", options, move |ctx, frame| {
         frame.set_fullscreen(true);
-        SidePanel::left("Left").show(ctx, |ui| {
-            ui.horizontal(|ui| {
-                ui.selectable_value(&mut tab, Tabs::Record, "Record");
-                ui.selectable_value(&mut tab, Tabs::Calibrate, "Calibrate");
-            });
-
-            if tab == Tabs::Record {
-                record_ui(ui, &mut cfg.record);
-            }
-
-            if tab == Tabs::Calibrate {
-                calib_ui(ui, &mut cfg.calib);
-            }
-        });
+        SidePanel::left("Left").show(ctx, |ui| app_ui(ui, &mut cfg));
     })
 }
 
-fn app_ui(ui: &mut Ui, state: &mut AppConfig) {}
+fn app_ui(ui: &mut Ui, state: &mut AppConfig) {
+    ui.horizontal(|ui| {
+        ui.selectable_value(&mut state.tab, Tabs::Record, "Record");
+        ui.selectable_value(&mut state.tab, Tabs::Calibrate, "Calibrate");
+    });
+
+    if state.tab == Tabs::Record {
+        record_ui(ui, &mut state.record);
+    }
+
+    if state.tab == Tabs::Calibrate {
+        calib_ui(ui, &mut state.calib);
+    }
+}
 
 fn record_ui(ui: &mut Ui, state: &mut RecorderConfig) {
-    // Subdivisions
+    // Subdivision
     ui.strong("Subdivisions");
     ui.label("Controls the granularity of the calibration pattern displayed by the projector, in powers of 2. Optimally, this should be the resolution of the projector.");
     ui.add(
@@ -115,5 +115,11 @@ impl Default for RecorderConfig {
             vert_subdivs: 11,
             pics_per_pattern: 1,
         }
+    }
+}
+
+impl Default for Tabs {
+    fn default() -> Self {
+        Self::Record
     }
 }
