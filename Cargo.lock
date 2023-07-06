@@ -138,6 +138,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc7eb209b1518d6bb87b283c20095f5228ecda460da70b44f0802523dea6da04"
 
 [[package]]
+name = "anyhow"
+version = "1.0.71"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c7d0618f0e0b7e8ff11427422b64564d5fb0be1940354bfe2e0529b18a9d9b8"
+
+[[package]]
 name = "arboard"
 version = "3.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -625,7 +631,12 @@ dependencies = [
 name = "deproject2"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "eframe",
+ "egui_glow",
+ "glow",
+ "realsense-rust",
+ "realsense-sys",
 ]
 
 [[package]]
@@ -1405,6 +1416,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "num-derive"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "876a53fff98e03a936a674b29568b0e605f06b29372c2489ff4de23f1949743d"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "num-integer"
 version = "0.1.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1722,6 +1744,28 @@ name = "raw-window-handle"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2ff9a1f06a88b01621b7ae906ef0211290d1c8a168a15542486a8f61c0833b9"
+
+[[package]]
+name = "realsense-rust"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ba24f13a11a78689a072079ca1710a147b85dfdb41df301ba969691aac40016"
+dependencies = [
+ "anyhow",
+ "num-derive",
+ "num-traits",
+ "realsense-sys",
+ "thiserror",
+]
+
+[[package]]
+name = "realsense-sys"
+version = "2.47.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cb5ee6a2847d05ac12b86a61451154ec3464a16d92d81ff2de99ed138dedcb17"
+dependencies = [
+ "pkg-config",
+]
 
 [[package]]
 name = "redox_syscall"
