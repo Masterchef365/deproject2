@@ -1,4 +1,4 @@
-use eframe::egui::{self, Context, DragValue, SidePanel, Ui};
+use eframe::{egui::{self, Context, DragValue, SidePanel, Ui}, epaint::Vec2};
 use egui::mutex::Mutex;
 use std::sync::Arc;
 
@@ -109,8 +109,12 @@ fn calib_ui(ui: &mut Ui, state: &mut CalibratorConfig) {
 
 /// Returns the number of horizontal and vertical subdivisions to use for this window
 fn fit_subdivs_to_window(ctx: &Context) -> (usize, usize) {
-    let pixels = ctx.pixels_per_point() * ctx.screen_rect().size();
+    let pixels = window_size_in_pixels(ctx);
     (pixels.x.log2().ceil() as _, pixels.y.log2().ceil() as _)
+}
+
+fn window_size_in_pixels(ctx: &Context) -> Vec2 {
+    ctx.pixels_per_point() * ctx.screen_rect().size()
 }
 
 impl Default for CalibratorConfig {
@@ -175,10 +179,12 @@ impl MyApp {
         // Clone locals so we can move them into the paint callback:
         let pattern = self.pattern.clone();
 
+        let window_size = window_size_in_pixels(ui.ctx());
+
         let callback = egui::PaintCallback {
             rect,
             callback: std::sync::Arc::new(egui_glow::CallbackFn::new(move |_info, painter| {
-                pattern.lock().paint(painter.gl());
+                pattern.lock().paint(painter.gl(), window_size);
             })),
         };
         ui.painter().add(callback);
@@ -287,9 +293,13 @@ impl ProjectorPatternPainter {
         }
     }
 
-    fn paint(&self, gl: &glow::Context) {
+    fn paint(&self, gl: &glow::Context, size: Vec2) {
         use glow::HasContext as _;
         unsafe {
+            // Take up the whole screen!
+            gl.scissor(0, 0, size.x as _, size.y as _);
+            gl.viewport(0, 0, size.x as _, size.y as _);
+
             gl.use_program(Some(self.program));
             gl.uniform_1_f32(
                 gl.get_uniform_location(self.program, "u_angle").as_ref(),
