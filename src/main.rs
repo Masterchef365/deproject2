@@ -19,6 +19,8 @@ struct RecorderConfig {
     horiz_subdivs: usize,
     /// Number of vertical subdivisions, pixel resolution is 2**v
     vert_subdivs: usize,
+    /// Number of frames to capture for each pattern
+    pics_per_pattern: usize,
 }
 
 fn main() -> eframe::Result<()> {
@@ -48,6 +50,7 @@ fn main() -> eframe::Result<()> {
 fn app_ui(ui: &mut Ui, state: &mut AppConfig) {}
 
 fn record_ui(ui: &mut Ui, state: &mut RecorderConfig) {
+    // Subdivisions
     ui.strong("Subdivisions");
     ui.label("Controls the granularity of the calibration pattern displayed by the projector, in powers of 2. Optimally, this should be the resolution of the projector.");
     ui.add(
@@ -72,6 +75,20 @@ fn record_ui(ui: &mut Ui, state: &mut RecorderConfig) {
     }
 
     ui.separator();
+
+    // Capture
+    ui.strong("Capture");
+    ui.add(
+        DragValue::new(&mut state.pics_per_pattern)
+            .prefix("Frames per pattern: ")
+            .clamp_range(1..=15),
+    );
+
+    ui.centered_and_justified(|ui| {
+        if ui.button("Start").clicked() {
+            todo!()
+        }
+    });
 }
 
 fn calib_ui(ui: &mut Ui, state: &mut CalibratorConfig) {
@@ -96,6 +113,7 @@ impl Default for RecorderConfig {
         Self {
             horiz_subdivs: 12,
             vert_subdivs: 11,
+            pics_per_pattern: 1,
         }
     }
 }
