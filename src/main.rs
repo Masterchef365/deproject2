@@ -1,24 +1,21 @@
-use eframe::egui;
+use eframe::egui::{self, SidePanel, Ui};
+
+#[derive(PartialEq)]
+enum Tabs {
+    Record,
+    Calibrate,
+}
 
 fn main() -> eframe::Result<()> {
-    // Our application state:
-    let mut name = "Arthur".to_owned();
-    let mut age = 42;
+    let mut tab = Tabs::Record;
 
     let options = eframe::NativeOptions::default();
     eframe::run_simple_native("My egui App", options, move |ctx, _frame| {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("My egui Application");
+        SidePanel::left("Left").show(ctx, |ui| {
             ui.horizontal(|ui| {
-                let name_label = ui.label("Your name: ");
-                ui.text_edit_singleline(&mut name)
-                    .labelled_by(name_label.id);
+                ui.selectable_value(&mut tab, Tabs::Record, "Record");
+                ui.selectable_value(&mut tab, Tabs::Calibrate, "Calibrate");
             });
-            ui.add(egui::Slider::new(&mut age, 0..=120).text("age"));
-            if ui.button("Click each year").clicked() {
-                age += 1;
-            }
-            ui.label(format!("Hello '{name}', age {age}"));
         });
     })
 }
