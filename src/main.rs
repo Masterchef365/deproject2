@@ -1,6 +1,19 @@
-use eframe::{egui::{self, Context, DragValue, SidePanel, Ui}, epaint::Vec2};
+use eframe::{
+    egui::{self, Context, DragValue, SidePanel, Ui},
+    epaint::Vec2,
+};
 use egui::mutex::Mutex;
-use std::sync::Arc;
+use std::sync::{
+    mpsc::{channel, Sender},
+    Arc,
+};
+use view3d::{RenderMsg, Viewport3d, ViewportState};
+
+mod shapes;
+mod camera;
+mod vertex;
+mod view3d;
+use vertex::Vertex;
 
 #[derive(PartialEq)]
 enum Tabs {
@@ -8,9 +21,14 @@ enum Tabs {
     Calibrate,
 }
 
+type PointCloud = Vec<Vertex>;
+
 struct MyApp {
     pattern: Arc<Mutex<ProjectorPatternPainter>>,
+    view3d: Arc<Mutex<Viewport3d>>,
+    viewport_state: ViewportState,
     cfg: AppConfig,
+    render_tx: Sender<RenderMsg>,
 }
 
 #[derive(Default)]
@@ -139,14 +157,21 @@ impl Default for Tabs {
     }
 }
 
-
 impl MyApp {
     fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let gl = cc
             .gl
             .as_ref()
             .expect("You need to run eframe with the glow backend");
+        let (render_tx, rx) = channel();
+
+        render_tx.send(RenderMsg { lines: shapes::default_grid(), points: vec![] }).unwrap();
+
+        let view3d = Viewport3d::new(&gl, rx);
         Self {
+            viewport_state: ViewportState::default(),
+            view3d: Arc::new(Mutex::new(view3d)),
+            render_tx,
             pattern: Arc::new(Mutex::new(ProjectorPatternPainter::new(gl))),
             cfg: AppConfig::default(),
         }
@@ -160,7 +185,8 @@ impl eframe::App for MyApp {
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            self.custom_painting(ui);
+            //self.show_calibration_pattern(ui);
+            view3d::viewport_widget(&mut self.viewport_state, self.view3d.clone(), ui);
         });
     }
 
@@ -172,22 +198,23 @@ impl eframe::App for MyApp {
 }
 
 impl MyApp {
-    fn custom_painting(&mut self, ui: &mut egui::Ui) {
-        let (rect, _response) =
-            ui.allocate_exact_size(ui.available_size(), egui::Sense::drag());
+    fn show_calibration_pattern(&mut self, ui: &mut egui::Ui) {
+        let (rect, _response) = ui.allocate_exact_size(ui.available_size(), egui::Sense::drag());
 
         // Clone locals so we can move them into the paint callback:
         let pattern = self.pattern.clone();
 
         let window_size = window_size_in_pixels(ui.ctx());
 
-        let callback = egui::PaintCallback {
-            rect,
-            callback: std::sync::Arc::new(egui_glow::CallbackFn::new(move |_info, painter| {
-                pattern.lock().paint(painter.gl(), window_size);
-            })),
-        };
-        ui.painter().add(callback);
+        if false {
+            let callback = egui::PaintCallback {
+                rect,
+                callback: std::sync::Arc::new(egui_glow::CallbackFn::new(move |_info, painter| {
+                    pattern.lock().paint(painter.gl(), window_size);
+                })),
+            };
+            ui.painter().add(callback);
+        }
     }
 }
 
@@ -213,7 +240,7 @@ impl ProjectorPatternPainter {
                 r#"
                     // https://www.saschawillems.de/blog/2016/08/13/vulkan-tutorial-on-rendering-a-fullscreen-quad-without-buffers/
                     out vec2 uv;
-                    
+
                     void main() {
                         uv = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
                         gl_Position = vec4(uv * 2.0f + -1.0f, 0.0f, 1.0f);
