@@ -7,19 +7,30 @@ const DOWNSCALE: f32 = 1000.;
 const PLANE_SIZE: f32 = 1000.0;
 
 pub fn default_grid() -> Vec<Vertex> {
-    grid(50 * 12, 12, 1., |x, y| [x, 0., y])
+    grid(
+        50 * 12,
+        12,
+        1.,
+        |x, y| [x, 0., y],
+        [0.2; 3],
+        [0.1; 3],
+    )
 }
 
-
-pub fn grid(size: i32, div: i32, scale: f32, map_3d: fn(f32, f32) -> [f32; 3]) -> Vec<Vertex> {
-    const LIGHT_GRAY: [f32; 3] = [0.1; 3];
-    const DARK_GRAY: [f32; 3] = [0.02; 3];
+pub fn grid(
+    size: i32,
+    div: i32,
+    scale: f32,
+    map_3d: fn(f32, f32) -> [f32; 3],
+    primary_color: [f32; 3],
+    secondary_color: [f32; 3],
+) -> Vec<Vertex> {
     let mut vertices = Vec::new();
     for i in -size..=size {
         let color = if i.abs() % div == 0 {
-            LIGHT_GRAY
+            primary_color
         } else {
-            DARK_GRAY
+            secondary_color
         };
         let i = i as f32 * scale;
         let length = div as f32 * scale;

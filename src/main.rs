@@ -185,8 +185,10 @@ impl eframe::App for MyApp {
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
+            egui::Frame::canvas(ui.style()).show(ui, |ui| {
             //self.show_calibration_pattern(ui);
-            view3d::viewport_widget(&mut self.viewport_state, self.view3d.clone(), ui);
+                view3d::viewport_widget(&mut self.viewport_state, self.view3d.clone(), ui);
+            });
         });
     }
 

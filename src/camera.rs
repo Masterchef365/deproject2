@@ -119,7 +119,7 @@ impl ArcBallController {
 impl Default for ArcBall {
     fn default() -> Self {
         Self {
-            pivot: Vec3::new(14.7, 8.5, 10.8),
+            pivot: Vec3::ZERO,
             pitch: 0.3,
             yaw: -1.92,
             distance: 30.,
@@ -130,7 +130,7 @@ impl Default for ArcBall {
 impl Default for Perspective {
     fn default() -> Self {
         Self {
-            fov: 45.0f32.to_radians(),
+            fov: 60.0f32.to_radians(),
             clip_near: 0.0001,
             clip_far: 20_000.0,
         }
