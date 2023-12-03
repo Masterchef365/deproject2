@@ -51,7 +51,7 @@ struct RecorderConfig {
 
 fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
-        initial_window_size: Some(egui::vec2(350.0, 380.0)),
+        //initial_window_size: Some(egui::vec2(350.0, 380.0)),
         multisampling: 4,
         renderer: eframe::Renderer::Glow,
         ..Default::default()

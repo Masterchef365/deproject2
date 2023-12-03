@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-eframe = "0.22.0"
+eframe = "0.24.0"
 anyhow = "1"
 realsense-rust = "1.1.0"
 realsense-sys = "2.47.0"
