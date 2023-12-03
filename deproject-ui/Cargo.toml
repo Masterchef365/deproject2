@@ -10,3 +10,4 @@ glow = "0.12.3"
 egui_glow = "0.24.1"
 glam = "0.24.1"
 bytemuck = "1.13"
+deproject-io = { path = "../deproject-io" }

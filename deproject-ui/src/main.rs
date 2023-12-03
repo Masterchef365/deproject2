@@ -1,16 +1,17 @@
+use deproject_io::{realsense_mainloop, ImagePointCloud};
 use eframe::{
     egui::{self, Context, DragValue, SidePanel, Ui},
     epaint::Vec2,
 };
 use egui::mutex::Mutex;
 use std::sync::{
-    mpsc::{channel, Sender},
+    mpsc::{channel, Receiver, Sender},
     Arc,
 };
 use view3d::{RenderMsg, Viewport3d, ViewportState};
 
-mod shapes;
 mod camera;
+mod shapes;
 mod vertex;
 mod view3d;
 use vertex::Vertex;
@@ -26,6 +27,7 @@ struct MyApp {
     viewport_state: ViewportState,
     cfg: AppConfig,
     render_tx: Sender<RenderMsg>,
+    camera_rx: Receiver<ImagePointCloud>,
 }
 
 #[derive(Default)]
@@ -162,10 +164,19 @@ impl MyApp {
             .expect("You need to run eframe with the glow backend");
         let (render_tx, rx) = channel();
 
-        render_tx.send(RenderMsg { lines: shapes::default_grid(), points: vec![] }).unwrap();
+        render_tx
+            .send(RenderMsg {
+                lines: shapes::default_grid(),
+                points: vec![],
+            })
+            .unwrap();
 
         let view3d = Viewport3d::new(&gl, rx);
+
+        let camera_rx = spawn_realsense_thread();
+
         Self {
+            camera_rx,
             viewport_state: ViewportState::default(),
             view3d: Arc::new(Mutex::new(view3d)),
             render_tx,
@@ -180,9 +191,23 @@ impl eframe::App for MyApp {
             app_ui(ui, &mut self.cfg);
         });
 
+        if let Some(latest_frame) = self.camera_rx.try_iter().last() {
+            let pointcloud = latest_frame
+                .iter_pixels()
+                .filter_map(|x| x)
+                .map(|(pos, color)| Vertex::new(pos.into(), color.map(|c| c as f32 / 256.0)))
+                .collect();
+            self.render_tx
+                .send(RenderMsg {
+                    points: pointcloud,
+                    lines: vec![],
+                })
+                .unwrap();
+        }
+
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::Frame::canvas(ui.style()).show(ui, |ui| {
-            //self.show_calibration_pattern(ui);
+                //self.show_calibration_pattern(ui);
                 view3d::viewport_widget(&mut self.viewport_state, self.view3d.clone(), ui);
             });
         });
@@ -193,4 +218,13 @@ impl eframe::App for MyApp {
             // TODO: Destroy viewport3d here?
         }
     }
+}
+
+fn spawn_realsense_thread() -> Receiver<ImagePointCloud> {
+    let (tx, rx) = std::sync::mpsc::channel();
+    std::thread::spawn(move || {
+        let callback = |x| tx.send(x).unwrap();
+        realsense_mainloop(callback).unwrap();
+    });
+    rx
 }

@@ -739,6 +739,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bytemuck",
+ "deproject-io",
  "eframe",
  "egui_glow",
  "glam",
