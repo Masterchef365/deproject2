@@ -1,0 +1,7 @@
+[workspace]
+resolver = "2"
+members = [
+    "deproject-ui",
+    "deproject-lib",
+    "deproject-io",
+]
