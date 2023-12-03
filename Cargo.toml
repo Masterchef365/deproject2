@@ -5,3 +5,6 @@ members = [
     "deproject-lib",
     "deproject-io",
 ]
+
+[profile.release]
+debug = true
