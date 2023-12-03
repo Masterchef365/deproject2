@@ -30,8 +30,10 @@ pub fn rs2_project_point_to_pixel(intrin: &Rs2Intrinsics, point: [f32; 3]) -> [f
 
     let distort = intrin.distortion();
 
+    /*
     match distort.model {
         Rs2DistortionModel::BrownConradyModified | Rs2DistortionModel::BrownConradyInverse => {
+    */
             let r2 = x * x + y * y;
             let f = 1.
                 + distort.coeffs[0] * r2
@@ -43,6 +45,7 @@ pub fn rs2_project_point_to_pixel(intrin: &Rs2Intrinsics, point: [f32; 3]) -> [f
             let dy = y + 2. * distort.coeffs[3] * x * y + distort.coeffs[2] * (r2 + 2. * y * y);
             x = dx;
             y = dy;
+/*
         }
 
         Rs2DistortionModel::BrownConrady => {
@@ -92,6 +95,7 @@ pub fn rs2_project_point_to_pixel(intrin: &Rs2Intrinsics, point: [f32; 3]) -> [f
 
         Rs2DistortionModel::None => (),
     }
+*/
 
     [
         x * intrin.fx() + intrin.ppx(),
@@ -114,6 +118,7 @@ pub fn rs2_deproject_pixel_to_point(
 
     let distort = intrin.distortion();
 
+    /*
     match distort.model {
         Rs2DistortionModel::BrownConradyModified => {
             panic!("Deprojection does not support BrownConradyModified")
@@ -138,6 +143,7 @@ pub fn rs2_deproject_pixel_to_point(
             }
         }
         Rs2DistortionModel::BrownConrady => {
+    */
             // need to loop until convergence
             // 10 iterations determined empirically
             for _ in 0..10 {
@@ -153,6 +159,7 @@ pub fn rs2_deproject_pixel_to_point(
                 x = (xo - delta_x) * icdist;
                 y = (yo - delta_y) * icdist;
             }
+            /*
         }
         Rs2DistortionModel::KannalaBrandt => {
             let mut rd = (x * x + y * y).sqrt();
@@ -201,6 +208,7 @@ pub fn rs2_deproject_pixel_to_point(
         }
         Rs2DistortionModel::None => (),
     }
+            */
 
     [depth * x, depth * y, depth]
 }
