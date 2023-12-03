@@ -281,7 +281,7 @@ impl Default for ViewportState {
         Self {
             camera: Default::default(),
             spread: 1.0,
-            point_size: 2.0,
+            point_size: 8.0,
         }
     }
 }
