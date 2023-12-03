@@ -191,6 +191,9 @@ impl eframe::App for MyApp {
             app_ui(ui, &mut self.cfg);
         });
 
+        // Always repaint!
+        ctx.request_repaint();
+
         if let Some(latest_frame) = self.camera_rx.try_iter().last() {
             let pointcloud = latest_frame
                 .iter_pixels()
