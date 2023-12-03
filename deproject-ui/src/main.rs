@@ -199,7 +199,9 @@ impl eframe::App for MyApp {
             let pointcloud = latest_frame
                 .iter_pixels()
                 .filter_map(|x| x)
-                .map(|(pos, color)| Vertex::new(pos.into(), color.map(|c| c as f32 / 256.0)))
+                .map(|(pos, color)| {
+                    Vertex::new((pos / 3.).into(), color.map(|c| c as f32 / 256.0))
+                })
                 .collect();
             self.render_tx
                 .send(RenderMsg {

@@ -422,8 +422,8 @@ pub fn realsense_mainloop(mut callback: impl FnMut(ImagePointCloud)) -> Result<(
                     [x as f32 - 0.5, y as f32 - 0.5],
                     in_depth_buf[pixel_idx] as f32,
                 );
-                let pt = pt.map(|v| v / 1e3);
-                position.push([pt[0], -pt[1], pt[2]].into());
+                //let pt = pt.map(|v| v / 1e1);
+                position.push(pt.into());
             }
         }
 
