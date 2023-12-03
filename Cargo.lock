@@ -720,6 +720,14 @@ dependencies = [
 [[package]]
 name = "deproject-io"
 version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bytemuck",
+ "glam",
+ "realsense-rust",
+ "realsense-sys",
+ "serde",
+]
 
 [[package]]
 name = "deproject-lib"
@@ -735,8 +743,6 @@ dependencies = [
  "egui_glow",
  "glam",
  "glow",
- "realsense-rust",
- "realsense-sys",
 ]
 
 [[package]]

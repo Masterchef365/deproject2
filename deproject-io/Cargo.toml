@@ -6,3 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1"
+realsense-rust = "1.1.0"
+realsense-sys = "2.47.0"
+glam = "0.24.1"
+bytemuck = "1.13"
+serde = { version = "1", features = ["derive"] }
