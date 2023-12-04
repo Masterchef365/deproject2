@@ -1,6 +1,6 @@
 use deproject_io::{realsense_mainloop, ImagePointCloud};
 use eframe::{
-    egui::{self, Context, DragValue, SidePanel, Ui},
+    egui::{self, Context, DragValue, SidePanel, Ui, ViewportBuilder, ViewportId},
     epaint::Vec2,
 };
 use egui::mutex::Mutex;
@@ -186,8 +186,26 @@ impl MyApp {
     }
 }
 
+
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        ctx.show_viewport_immediate(
+            ViewportId::from_hash_of("Projector display"),
+            ViewportBuilder::default().with_title("Projector display"),
+            |ctx, _vp_class| {
+
+                /*
+                egui::CentralPanel::default().show(ctx, |ui| {
+                    //ui.label("wassup bitches");
+                    egui::Frame::canvas(ui.style()).show(ui, |ui| {
+                        //self.show_calibration_pattern(ui);
+                        view3d::viewport_widget(&mut self.viewport_state, self.view3d.clone(), ui);
+                    })
+                });
+                */
+            },
+        );
+
         egui::SidePanel::left("Left").show(ctx, |ui| {
             app_ui(ui, &mut self.cfg);
         });
@@ -199,9 +217,7 @@ impl eframe::App for MyApp {
             let pointcloud = latest_frame
                 .iter_pixels()
                 .filter_map(|x| x)
-                .map(|(pos, color)| {
-                    Vertex::new((pos / 3.).into(), color.map(|c| c as f32 / 256.0))
-                })
+                .map(|(pos, color)| Vertex::new((pos / 3.).into(), color.map(|c| c as f32 / 256.0)))
                 .collect();
             self.render_tx
                 .send(RenderMsg {

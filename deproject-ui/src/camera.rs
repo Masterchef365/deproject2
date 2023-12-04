@@ -131,8 +131,8 @@ impl Default for Perspective {
     fn default() -> Self {
         Self {
             fov: 60.0f32.to_radians(),
-            clip_near: 0.0001,
-            clip_far: 20_000.0,
+            clip_near: 0.01,
+            clip_far: 2_000.0,
         }
     }
 }
