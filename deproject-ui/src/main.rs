@@ -246,7 +246,7 @@ fn spawn_realsense_thread() -> Receiver<ImagePointCloud> {
     let (tx, rx) = std::sync::mpsc::channel();
     std::thread::spawn(move || {
         let callback = |x| tx.send(x).unwrap();
-        realsense_mainloop(callback).unwrap();
+        realsense_mainloop(callback, 640, 0, 640, 0, 15).unwrap();
     });
     rx
 }

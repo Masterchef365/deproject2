@@ -26,7 +26,7 @@ use crate::realsense_utils::*;
 
 /// Gets frames from the realsense, processes them, and then calls "callback". Intended to be
 /// embedded in an external thread, since this method never returns
-pub fn realsense_mainloop(mut callback: impl FnMut(ImagePointCloud)) -> Result<()> {
+pub fn realsense_mainloop(mut callback: impl FnMut(ImagePointCloud), color_width: usize, color_height: usize, depth_width: usize, depth_height: usize, fps: usize) -> Result<()> {
     // Check for depth or color-compatible devices.
     let queried_devices = HashSet::new(); // Query any devices
     let context = Context::new()?;
@@ -42,8 +42,8 @@ pub fn realsense_mainloop(mut callback: impl FnMut(ImagePointCloud)) -> Result<(
     config
         .enable_device_from_serial(device.info(Rs2CameraInfo::SerialNumber).unwrap())?
         .disable_all_streams()?
-        .enable_stream(Rs2StreamKind::Color, None, 640, 0, Rs2Format::Bgr8, 15)?
-        .enable_stream(Rs2StreamKind::Depth, None, 640, 0, Rs2Format::Z16, 15)
+        .enable_stream(Rs2StreamKind::Color, None, color_width, color_height, Rs2Format::Bgr8, fps)?
+        .enable_stream(Rs2StreamKind::Depth, None, depth_width, depth_height, Rs2Format::Z16, fps)
         .unwrap();
 
     // Change pipeline's type from InactivePipeline -> ActivePipeline
