@@ -6,6 +6,7 @@ use std::path::PathBuf;
 
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
+use std::time::Instant;
 use std::{path::Path, time::Duration};
 
 use realsense_rust::{
@@ -68,9 +69,15 @@ pub fn realsense_mainloop(mut callback: impl FnMut(ImagePointCloud), color_width
     let mut in_depth_buf: Vec<u16> = vec![];
     let mut out_color_buf: Vec<[u8; 3]> = vec![];
 
+    let mut last_elap = Instant::now();
+
     let timeout = Duration::from_millis(2000);
     loop {
+        let fps = 1. / last_elap.elapsed().as_secs_f32();
+        println!("FPS: {fps}");
+
         let frames = pipeline.wait(Some(timeout)).unwrap();
+
         let color_frame: &ColorFrame = &frames.frames_of_type()[0];
         let depth_frame: &DepthFrame = &frames.frames_of_type()[0];
 
