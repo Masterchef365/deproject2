@@ -1,6 +1,7 @@
 use glam::Vec3;
 
 mod realsense;
+mod realsense_utils;
 
 pub use realsense::realsense_mainloop;
 
